@@ -1,9 +1,11 @@
 use sewup::types::Address;
-use sewup_derive::{ewasm_constructor, ewasm_fn, ewasm_fn_sig, ewasm_main, ewasm_test};
+use sewup_derive::{
+    ewasm_call_only_by, ewasm_constructor, ewasm_fn, ewasm_fn_sig, ewasm_main, ewasm_test,
+};
 
 #[ewasm_constructor]
 fn constructor() {
-    sewup::token::erc20::mint("8663DBF0cC68AaF37fC8BA262F2df4c666a41993", 1000);
+    sewup::token::erc20::mint("8663DBF0cC68AaF37fC8BA262F2df4c666a41993", 1000); // admin
     sewup::token::erc20::mint("1cCA28600d7491365520B31b466f88647B9839eC", 1000);
 }
 
@@ -18,6 +20,22 @@ fn balnace_of_wrapper(c: &sewup::primitives::Contract) {
     }
 }
 
+#[ewasm_fn("1249c58b", {
+    "constant": false,
+    "inputs": [],
+    "name": "mint",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+})]
+fn mint_to_admin() {
+    let caller_address = sewup::utils::caller();
+    if caller_address == Address::from_str("8663DBF0cC68AaF37fC8BA262F2df4c666a41993").unwrap() {
+        sewup::token::erc20::mint("8663DBF0cC68AaF37fC8BA262F2df4c666a41993", 1000);
+    }
+}
+
 #[ewasm_main]
 fn main() -> anyhow::Result<()> {
     let contract = sewup::primitives::Contract::new()?;
@@ -25,6 +43,7 @@ fn main() -> anyhow::Result<()> {
         // Reuse the signature
         sewup::token::erc20::BALANCE_OF_SIG => balnace_of_wrapper(&contract),
         sewup::token::erc20::TRANSFER_SIG => sewup::token::erc20::transfer(&contract),
+        ewasm_fn_sig!(mint_to_admin) => mint_to_admin(),
         _ => panic!("unknown handle"),
     };
     Ok(())
@@ -39,7 +58,7 @@ mod tests {
 
     #[ewasm_test]
     fn test_get_greeting() {
-        let balance_input = hex!("1cCA28600d7491365520B31b466f88647B9839eC");
+        let mut balance_input = hex!("1cCA28600d7491365520B31b466f88647B9839eC");
         let mut input_data = vec![0u8, 0u8, 0u8, 0u8];
         input_data.append(&mut balance_input.to_vec());
         ewasm_assert_eq!(balance_of(input_data), vec![]);
@@ -80,6 +99,24 @@ mod tests {
             vec![
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 3, 223
+            ]
+        );
+
+        ewasm_assert_eq!(
+            mint_to_admin() by "8663DBF0cC68AaF37fC8BA262F2df4c666a41993",
+            vec![]
+        );
+
+        let balance_input = hex!("8663DBF0cC68AaF37fC8BA262F2df4c666a41993");
+        let mut input_data = vec![0u8, 0u8, 0u8, 0u8];
+        input_data.append(&mut balance_input.to_vec());
+        ewasm_assert_eq!(balance_of(input_data), vec![]);
+
+        ewasm_assert_eq!(
+            balance_of(input_data) by "8663DBF0cC68AaF37fC8BA262F2df4c666a41993",
+            vec![
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 3, 232
             ]
         );
     }

@@ -9,8 +9,7 @@ const utils = require('./utils');
   console.log(`${accounts[1]} balance: ${await web3.eth.getBalance(accounts[1])}`);
 
   // TODO modify contract address after deploy
-  // let contractAddress = "0x4866970be557faf3b2adc40d4dee60d0a6489e8a";
-  let contractAddress = "0xe903bc1ef72215a2e6a74b6f1693add99b3afa10";
+  let contractAddress = "0xf585ea5795c756af383d349be5dae85dedf545ae";
 
   let result;
   // Normal balance of can not use anymore
@@ -37,10 +36,21 @@ const utils = require('./utils');
       .on('receipt', function (receipt) {
     console.log(`Transfer ${amount} token from address(${accounts[0]}) to address(${accounts[1]})`);
   });
-  await utils.provider.engine.stop();
 
   result = await contract.methods.balanceOf(accounts[0]).call();
   console.log(`admin check contract.balanceOf(${accounts[0]}) = ${result}`);
   result = await contract.methods.balanceOf(accounts[1]).call();
   console.log(`admin check contract.balanceOf(${accounts[1]}) = ${result}`);
+
+  // Mint for admin
+  await contract.methods.mint()
+      .send({ from: accounts[0] })
+      .on('receipt', function (receipt) {
+    console.log(`admin address(${accounts[0]}) mint for his self`);
+  });
+
+  result = await contract.methods.balanceOf(accounts[0]).call();
+  console.log(`admin check contract.balanceOf(${accounts[0]}) = ${result}`);
+
+  await utils.provider.engine.stop();
 })();

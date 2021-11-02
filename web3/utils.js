@@ -29,12 +29,10 @@ const abi = [
         "type": "function"
     },
 
-    // Rule 2
+    // part of Rule 2
     {
         "constant": false,
-        "inputs": [
-            { "internalType": "address", "name": "recipient", "type": "address" },
-            { "internalType": "uint256", "name": "amount", "type": "uint256" }],
+        "inputs": [],
         "name": "mint",
         "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
         "payable": false,
