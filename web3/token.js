@@ -30,5 +30,17 @@ const utils = require('./utils');
   result = await contract.methods.balanceOf(accounts[1]).call();
   console.log(`admin check contract.balanceOf(${accounts[1]}) = ${result}`);
 
+  // Transfer
+  let amount = 2;
+  await contract.methods.transfer(accounts[1], amount)
+      .send({ from: accounts[0] })
+      .on('receipt', function (receipt) {
+    console.log(`Transfer ${amount} token from address(${accounts[0]}) to address(${accounts[1]})`);
+  });
   await utils.provider.engine.stop();
+
+  result = await contract.methods.balanceOf(accounts[0]).call();
+  console.log(`admin check contract.balanceOf(${accounts[0]}) = ${result}`);
+  result = await contract.methods.balanceOf(accounts[1]).call();
+  console.log(`admin check contract.balanceOf(${accounts[1]}) = ${result}`);
 })();
