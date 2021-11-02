@@ -13,10 +13,12 @@ crate-type = ["cdylib"]
 # https://github.com/second-state/SewUp/tree/main/examples/default-contract
 
 [dependencies]
-sewup = "*"
-sewup-derive = "*"
+sewup = { version = "0.1.6", features = [ "token" ] }
+sewup-derive = "0.1.6"
 anyhow = "*"
-# thiserror = "*"
+
+[dev-dependencies]
+hex-literal = "0.3.1"
 
 [profile.release]
 incremental = false

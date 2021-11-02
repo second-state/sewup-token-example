@@ -619,6 +619,7 @@ name = "sewup-token-example"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "hex-literal",
  "sewup",
  "sewup-derive",
 ]
