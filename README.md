@@ -12,6 +12,7 @@ Rules
 2. Admin can charge the balance for any user
 3. User can check the remaining balance of his self
 4. User can spend some his balance to others
+5. Admin can reduce the balance of a user
 
 ## Reference
 - [Sewup project](https://github.com/second-state/SewUp)
